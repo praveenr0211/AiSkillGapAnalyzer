@@ -20,8 +20,11 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin:
-      process.env.FRONTEND_URL || "https://ai-skill-gap-analyzer.vercel.app",
+    origin: [
+      "http://localhost:3000",
+      "https://ai-skill-gap-analyzer.vercel.app",
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
     credentials: true,
   })
 );
