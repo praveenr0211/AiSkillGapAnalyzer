@@ -26,7 +26,14 @@ const Login = ({ onLoginSuccess }) => {
     setError("");
 
     // Redirect to backend Google OAuth
-    window.location.href = "http://localhost:5000/auth/google";
+    const authUrl =
+      process.env.NODE_ENV === "production"
+        ? "/auth/google"
+        : process.env.REACT_APP_AUTH_URL
+        ? `${process.env.REACT_APP_AUTH_URL}/google`
+        : "http://localhost:5000/auth/google";
+
+    window.location.href = authUrl;
   };
 
   return (
