@@ -1,22 +1,22 @@
 require("dotenv").config({
   path: require("path").join(__dirname, "..", ".env"),
 });
-const pool = require("./config/database");
+const db = require("./config/database");
 
 console.log("🔧 Creating skill_progress table...");
 
 async function initProgressTables() {
   try {
     // Create skill_progress table
-    await pool.query(`
+    await db.run(`
       CREATE TABLE IF NOT EXISTS skill_progress (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
         user_email TEXT NOT NULL,
         skill_name TEXT NOT NULL,
         status TEXT DEFAULT 'in-progress',
-        started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        completed_at TIMESTAMP,
+        started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        completed_at DATETIME,
         notes TEXT,
         UNIQUE(user_id, skill_name)
       )
@@ -25,14 +25,14 @@ async function initProgressTables() {
     console.log("✅ skill_progress table created successfully");
 
     // Create achievements table
-    await pool.query(`
+    await db.run(`
       CREATE TABLE IF NOT EXISTS achievements (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
         user_email TEXT NOT NULL,
         badge_type TEXT NOT NULL,
         badge_name TEXT NOT NULL,
-        earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        earned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id, badge_type)
       )
     `);

@@ -10,7 +10,7 @@ exports.getUserHistory = async (req, res) => {
     const query = `
       SELECT id, job_role, match_percentage, created_at
       FROM resume_analyses
-      WHERE user_id = $1
+      WHERE user_id = ?
       ORDER BY created_at DESC
     `;
 
@@ -40,7 +40,7 @@ exports.getAnalysisById = async (req, res) => {
     const query = `
       SELECT *
       FROM resume_analyses
-      WHERE id = $1 AND user_id = $2
+      WHERE id = ? AND user_id = ?
     `;
 
     const result = await db.query(query, [analysisId, userId]);
@@ -82,7 +82,7 @@ exports.deleteAnalysis = async (req, res) => {
     const userId = req.user.id;
     const analysisId = req.params.id;
 
-    const query = `DELETE FROM resume_analyses WHERE id = $1 AND user_id = $2`;
+    const query = `DELETE FROM resume_analyses WHERE id = ? AND user_id = ?`;
 
     const result = await db.query(query, [analysisId, userId]);
 
@@ -121,11 +121,11 @@ exports.compareAnalyses = async (req, res) => {
       });
     }
 
-    const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+    const placeholders = ids.map(() => "?").join(",");
     const query = `
       SELECT *
       FROM resume_analyses
-      WHERE id IN (${placeholders}) AND user_id = $${ids.length + 1}
+      WHERE id IN (${placeholders}) AND user_id = ?
       ORDER BY created_at ASC
     `;
 

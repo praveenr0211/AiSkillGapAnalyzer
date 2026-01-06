@@ -13,9 +13,6 @@ router.get("/", progressController.getProgress);
 // Update skill progress
 router.post("/update", progressController.updateProgress);
 
-// Get achievements
-router.get("/achievements", progressController.getAchievements);
-
 // Get progress statistics
 router.get("/stats", progressController.getStats);
 

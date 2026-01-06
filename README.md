@@ -4,11 +4,21 @@ A full-stack web application that helps students identify missing skills for tar
 
 ## Features
 
-- Resume upload (PDF/DOCX support)
-- AI-powered skill extraction and comparison
-- Job role skill matching
-- Personalized learning roadmap generation
-- Interactive dashboard with match percentage
+- 📄 Resume upload (PDF/DOCX support)
+- 🤖 AI-powered skill extraction and comparison
+- 🎯 Job role skill matching
+- 🗺️ Personalized learning roadmap generation
+- 📊 Interactive dashboard with match percentage
+- 🔍 **NEW: Detailed Skill View** - Click "View Details" on any skill to see:
+  - Comprehensive learning topics with visual cards
+  - Parallax scrolling effects
+  - Animated course recommendations
+  - Hands-on project ideas
+  - Step-by-step learning roadmap
+- 👤 User authentication with Google OAuth
+- 📈 Progress tracking and achievements
+- 📜 Analysis history and comparison tools
+- 📄 PDF export functionality
 
 ## Tech Stack
 
@@ -60,6 +70,13 @@ A full-stack web application that helps students identify missing skills for tar
    ```bash
    cd backend
    node initDatabase.js
+   node initHistoryTable.js
+   node initProgressTable.js
+   ```
+   Or use the batch file (Windows):
+   ```bash
+   cd backend
+   init-all-tables.bat
    ```
 
 ### Running the Application

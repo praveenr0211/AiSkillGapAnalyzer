@@ -5,6 +5,7 @@ const passport = require("../config/passport");
  */
 exports.googleAuth = passport.authenticate("google", {
   scope: ["profile", "email"],
+  prompt: "select_account", // Always show account selection
 });
 
 /**

@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  getProgress,
-  updateProgress,
-  getAchievements,
-  getProgressStats,
-} from "../services/api";
+import { getProgress, updateProgress, getProgressStats } from "../services/api";
 import "./ProgressDashboard.css";
 
 const ProgressDashboard = () => {
   const [skills, setSkills] = useState([]);
-  const [achievements, setAchievements] = useState([]);
   const [stats, setStats] = useState({
     totalSkills: 0,
     completedSkills: 0,
@@ -21,13 +15,6 @@ const ProgressDashboard = () => {
   const [newSkillName, setNewSkillName] = useState("");
   const [showAddSkill, setShowAddSkill] = useState(false);
 
-  const badgeIcons = {
-    "First Step": "🎯",
-    "Skill Explorer": "🔍",
-    "Skill Master": "🏆",
-    "Skill Legend": "👑",
-  };
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -37,18 +24,15 @@ const ProgressDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [progressData, achievementsData, statsData] = await Promise.all([
+      const [progressData, statsData] = await Promise.all([
         getProgress(),
-        getAchievements(),
         getProgressStats(),
       ]);
 
       console.log("Progress data:", progressData);
-      console.log("Achievements data:", achievementsData);
       console.log("Stats data:", statsData);
 
       setSkills(progressData.skills || []);
-      setAchievements(achievementsData.achievements || []);
       setStats(statsData);
     } catch (err) {
       console.error("Error fetching progress data:", err);
@@ -69,6 +53,8 @@ const ProgressDashboard = () => {
       const skill = skills.find((s) => s.skill_name === skillName);
       const newStatus =
         skill.status === "completed" ? "in-progress" : "completed";
+      const completedAt =
+        newStatus === "completed" ? new Date().toISOString() : null;
 
       // Optimistically update the UI
       setSkills((prevSkills) =>
@@ -77,8 +63,7 @@ const ProgressDashboard = () => {
             ? {
                 ...s,
                 status: newStatus,
-                completed_at:
-                  newStatus === "completed" ? new Date().toISOString() : null,
+                completed_at: completedAt,
               }
             : s
         )
@@ -87,6 +72,24 @@ const ProgressDashboard = () => {
       // Update stats optimistically
       setStats((prevStats) => {
         const isNowCompleted = newStatus === "completed";
+        let updatedRecentlyCompleted = [...(prevStats.recentlyCompleted || [])];
+
+        if (isNowCompleted) {
+          // Add to recently completed
+          const completedSkill = {
+            skill_name: skillName,
+            completed_at: completedAt,
+          };
+          updatedRecentlyCompleted.unshift(completedSkill);
+          // Keep only the 5 most recent
+          updatedRecentlyCompleted = updatedRecentlyCompleted.slice(0, 5);
+        } else {
+          // Remove from recently completed if marking as in-progress
+          updatedRecentlyCompleted = updatedRecentlyCompleted.filter(
+            (s) => s.skill_name !== skillName
+          );
+        }
+
         return {
           ...prevStats,
           completedSkills: isNowCompleted
@@ -95,18 +98,12 @@ const ProgressDashboard = () => {
           inProgressSkills: isNowCompleted
             ? prevStats.inProgressSkills - 1
             : prevStats.inProgressSkills + 1,
+          recentlyCompleted: updatedRecentlyCompleted,
         };
       });
 
       // Send update to backend
       await updateProgress(skillName, newStatus, skill.notes);
-
-      // Fetch achievements in background (non-blocking)
-      getAchievements()
-        .then((data) => {
-          setAchievements(data.achievements || []);
-        })
-        .catch(console.error);
     } catch (err) {
       console.error("Error updating skill:", err);
       alert("Failed to update skill status");
@@ -156,80 +153,288 @@ const ProgressDashboard = () => {
 
   return (
     <div className="progress-dashboard">
-      <div className="dashboard-header">
-        <h1>📊 Progress Dashboard</h1>
-        <p>Track your skill development journey</p>
-      </div>
-
       {/* Stats Overview */}
       <div className="stats-overview">
         <div className="stat-card">
-          <div className="stat-icon">📚</div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.totalSkills}</div>
-            <div className="stat-label">Total Skills</div>
+          <div className="stat-header">
+            <span className="stat-icon">📚</span>
+            <span className="stat-label">Total Skills</span>
+            <button className="stat-menu">⋯</button>
           </div>
+          <div className="stat-value">{stats.totalSkills}</div>
+          <div className="stat-change positive">+14.9% ↑</div>
         </div>
-        <div className="stat-card completed">
-          <div className="stat-icon">✅</div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.completedSkills}</div>
-            <div className="stat-label">Completed</div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">✅</span>
+            <span className="stat-label">Completed</span>
+            <button className="stat-menu">⋯</button>
           </div>
+          <div className="stat-value">{stats.completedSkills}</div>
+          <div className="stat-change negative">-12.6% ↓</div>
         </div>
-        <div className="stat-card in-progress">
-          <div className="stat-icon">🔄</div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.inProgressSkills}</div>
-            <div className="stat-label">In Progress</div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">🔄</span>
+            <span className="stat-label">In Progress</span>
+            <button className="stat-menu">⋯</button>
           </div>
+          <div className="stat-value">{stats.inProgressSkills}</div>
+          <div className="stat-change positive">+3.1% ↑</div>
         </div>
-        <div className="stat-card progress">
-          <div className="stat-icon">📈</div>
-          <div className="stat-content">
-            <div className="stat-value">{calculateProgress()}%</div>
-            <div className="stat-label">Completion Rate</div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">📈</span>
+            <span className="stat-label">Completion Rate</span>
+            <button className="stat-menu">⋯</button>
           </div>
+          <div className="stat-value">{calculateProgress()}%</div>
+          <div className="stat-change positive">+11.9% ↑</div>
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="progress-bar-container">
-        <div className="progress-bar">
-          <div
-            className="progress-bar-fill"
-            style={{ width: `${calculateProgress()}%` }}
-          ></div>
+      {/* Main Content Grid */}
+      <div className="dashboard-main-grid">
+        {/* Left Section - Circular Progress */}
+        <div className="dashboard-card circular-progress-section">
+          <div className="card-header">
+            <h3>Overall Progress</h3>
+            <button className="export-btn">Export ↓</button>
+          </div>
+          <div className="circular-gauge">
+            <svg viewBox="0 0 200 200" className="gauge-svg">
+              <defs>
+                <linearGradient
+                  id="gaugeGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    style={{ stopColor: "#f093fb", stopOpacity: 1 }}
+                  />
+                  <stop
+                    offset="50%"
+                    style={{ stopColor: "#764ba2", stopOpacity: 1 }}
+                  />
+                  <stop
+                    offset="100%"
+                    style={{ stopColor: "#667eea", stopOpacity: 1 }}
+                  />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.1)"
+                strokeWidth="20"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke="url(#gaugeGradient)"
+                strokeWidth="20"
+                strokeLinecap="round"
+                strokeDasharray={`${calculateProgress() * 5.03} 502.65`}
+                transform="rotate(-90 100 100)"
+                style={{ transition: "stroke-dasharray 0.5s ease" }}
+              />
+            </svg>
+            <div className="gauge-center">
+              <div className="gauge-value">{calculateProgress()}%</div>
+              <div className="gauge-label">Complete</div>
+            </div>
+          </div>
+          <div className="gauge-legend">
+            <div className="legend-item">
+              <span
+                className="legend-dot"
+                style={{ background: "#f093fb" }}
+              ></span>
+              <span className="legend-label">Completed</span>
+              <span className="legend-value">
+                {Math.round((stats.completedSkills / stats.totalSkills) * 100)}%
+              </span>
+            </div>
+            <div className="legend-item">
+              <span
+                className="legend-dot"
+                style={{ background: "#667eea" }}
+              ></span>
+              <span className="legend-label">In Progress</span>
+              <span className="legend-value">
+                {Math.round((stats.inProgressSkills / stats.totalSkills) * 100)}
+                %
+              </span>
+            </div>
+            <div className="legend-item">
+              <span
+                className="legend-dot"
+                style={{ background: "#06b6d4" }}
+              ></span>
+              <span className="legend-label">Remaining</span>
+              <span className="legend-value">{100 - calculateProgress()}%</span>
+            </div>
+          </div>
         </div>
-        <p className="progress-text">
-          {stats.completedSkills} of {stats.totalSkills} skills completed
-        </p>
-      </div>
 
-      {/* Achievements */}
-      {achievements.length > 0 && (
-        <div className="achievements-section">
-          <h2>🏆 Achievements</h2>
-          <div className="achievements-grid">
-            {achievements.map((achievement) => (
-              <div key={achievement.id} className="achievement-badge">
-                <div className="badge-icon">
-                  {badgeIcons[achievement.badge_name] || "⭐"}
-                </div>
-                <div className="badge-name">{achievement.badge_name}</div>
-                <div className="badge-date">
-                  {formatDate(achievement.earned_at)}
-                </div>
-              </div>
+        {/* Right Section - Skills Chart */}
+        <div className="dashboard-card skills-chart-section">
+          <div className="card-header">
+            <div>
+              <h3>Skills Progress</h3>
+              <p className="card-subtitle">Monthly tracking</p>
+            </div>
+          </div>
+          <div className="chart-value">
+            <span className="chart-amount">{stats.totalSkills}</span>
+            <span className="chart-change positive">+14.9% ↑</span>
+          </div>
+          <div className="line-chart">
+            <svg
+              viewBox="0 0 800 200"
+              className="line-chart-svg"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient
+                  id="lineGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop
+                    offset="0%"
+                    style={{ stopColor: "#667eea", stopOpacity: 1 }}
+                  />
+                  <stop
+                    offset="50%"
+                    style={{ stopColor: "#764ba2", stopOpacity: 1 }}
+                  />
+                  <stop
+                    offset="100%"
+                    style={{ stopColor: "#f093fb", stopOpacity: 1 }}
+                  />
+                </linearGradient>
+                <linearGradient
+                  id="areaGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    style={{ stopColor: "#764ba2", stopOpacity: 0.3 }}
+                  />
+                  <stop
+                    offset="100%"
+                    style={{ stopColor: "#764ba2", stopOpacity: 0 }}
+                  />
+                </linearGradient>
+              </defs>
+              {/* Grid lines */}
+              <line
+                x1="0"
+                y1="50"
+                x2="800"
+                y2="50"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="1"
+              />
+              <line
+                x1="0"
+                y1="100"
+                x2="800"
+                y2="100"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="1"
+              />
+              <line
+                x1="0"
+                y1="150"
+                x2="800"
+                y2="150"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="1"
+              />
+
+              {/* Area under curve */}
+              <path
+                d="M 0 170 L 66.67 130 L 133.33 180 L 200 100 L 266.67 160 L 333.33 90 L 400 140 L 466.67 120 L 533.33 80 L 600 130 L 666.67 110 L 733.33 90 L 800 90 L 800 200 L 0 200 Z"
+                fill="url(#areaGradient)"
+              />
+
+              {/* Line */}
+              <path
+                d="M 0 170 L 66.67 130 L 133.33 180 L 200 100 L 266.67 160 L 333.33 90 L 400 140 L 466.67 120 L 533.33 80 L 600 130 L 666.67 110 L 733.33 90"
+                fill="none"
+                stroke="url(#lineGradient)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Data points */}
+              {[
+                { x: 0, y: 170 },
+                { x: 66.67, y: 130 },
+                { x: 133.33, y: 180 },
+                { x: 200, y: 100 },
+                { x: 266.67, y: 160 },
+                { x: 333.33, y: 90 },
+                { x: 400, y: 140 },
+                { x: 466.67, y: 120 },
+                { x: 533.33, y: 80 },
+                { x: 600, y: 130 },
+                { x: 666.67, y: 110 },
+                { x: 733.33, y: 90 },
+              ].map((point, idx) => (
+                <circle
+                  key={idx}
+                  cx={point.x}
+                  cy={point.y}
+                  r="4"
+                  fill="url(#lineGradient)"
+                  className="chart-point"
+                />
+              ))}
+            </svg>
+          </div>
+          <div className="chart-labels">
+            {[
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ].map((month, idx) => (
+              <span key={idx} className="chart-label">
+                {month}
+              </span>
             ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Skills Section */}
       <div className="skills-section">
         <div className="section-header">
-          <h2>🎯 Your Skills</h2>
+          <h2>🎯 Target Skills</h2>
           <button
             className="add-skill-btn"
             onClick={() => setShowAddSkill(!showAddSkill)}

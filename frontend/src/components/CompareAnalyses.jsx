@@ -43,12 +43,6 @@ const CompareAnalyses = ({ analysisIds, onBack }) => {
     });
   };
 
-  const getScoreColor = (percentage) => {
-    if (percentage >= 75) return "#4caf50";
-    if (percentage >= 50) return "#ff9800";
-    return "#f44336";
-  };
-
   const calculateImprovement = (analysis1, analysis2) => {
     const diff = analysis2.match_percentage - analysis1.match_percentage;
     return {
@@ -135,9 +129,15 @@ const CompareAnalyses = ({ analysisIds, onBack }) => {
             <div
               className="score-circle"
               style={{
-                background: `conic-gradient(${getScoreColor(
-                  analysis1.match_percentage
-                )} ${analysis1.match_percentage * 3.6}deg, #f0f0f0 0deg)`,
+                background: `conic-gradient(
+                  from 0deg,
+                  #667eea 0deg,
+                  #764ba2 ${analysis1.match_percentage * 1.8}deg,
+                  #f093fb ${analysis1.match_percentage * 3.6}deg,
+                  rgba(255, 255, 255, 0.05) ${
+                    analysis1.match_percentage * 3.6
+                  }deg
+                )`,
               }}
             >
               <div className="score-inner">
@@ -185,9 +185,15 @@ const CompareAnalyses = ({ analysisIds, onBack }) => {
             <div
               className="score-circle"
               style={{
-                background: `conic-gradient(${getScoreColor(
-                  analysis2.match_percentage
-                )} ${analysis2.match_percentage * 3.6}deg, #f0f0f0 0deg)`,
+                background: `conic-gradient(
+                  from 0deg,
+                  #667eea 0deg,
+                  #764ba2 ${analysis2.match_percentage * 1.8}deg,
+                  #f093fb ${analysis2.match_percentage * 3.6}deg,
+                  rgba(255, 255, 255, 0.05) ${
+                    analysis2.match_percentage * 3.6
+                  }deg
+                )`,
               }}
             >
               <div className="score-inner">

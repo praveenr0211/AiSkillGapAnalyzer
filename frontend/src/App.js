@@ -1,21 +1,61 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import Login from "./components/Login";
+import LandingPage from "./components/LandingPage";
 import ResumeUpload from "./components/ResumeUpload";
 import ResultDashboard from "./components/ResultDashboard";
 import History from "./components/History";
 import CompareAnalyses from "./components/CompareAnalyses";
 import ProgressDashboard from "./components/ProgressDashboard";
+import Courses from "./components/Courses";
 import { getCurrentUser, logout, getAnalysisById } from "./services/api";
 
 function App() {
-  const [analysisResult, setAnalysisResult] = useState(null);
-  const [jobRole, setJobRole] = useState("");
+  const [analysisResult, setAnalysisResult] = useState(() => {
+    const saved = sessionStorage.getItem("analysisResult");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [jobRole, setJobRole] = useState(() => {
+    return sessionStorage.getItem("jobRole") || "";
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState("upload"); // upload, history, compare, results, progress
-  const [compareIds, setCompareIds] = useState([]);
+  const [currentView, setCurrentView] = useState(() => {
+    return sessionStorage.getItem("currentView") || "upload";
+  });
+  const [compareIds, setCompareIds] = useState(() => {
+    const saved = sessionStorage.getItem("compareIds");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Persist state to sessionStorage whenever it changes
+  useEffect(() => {
+    if (analysisResult) {
+      sessionStorage.setItem("analysisResult", JSON.stringify(analysisResult));
+    } else {
+      sessionStorage.removeItem("analysisResult");
+    }
+  }, [analysisResult]);
+
+  useEffect(() => {
+    if (jobRole) {
+      sessionStorage.setItem("jobRole", jobRole);
+    } else {
+      sessionStorage.removeItem("jobRole");
+    }
+  }, [jobRole]);
+
+  useEffect(() => {
+    sessionStorage.setItem("currentView", currentView);
+  }, [currentView]);
+
+  useEffect(() => {
+    if (compareIds.length > 0) {
+      sessionStorage.setItem("compareIds", JSON.stringify(compareIds));
+    } else {
+      sessionStorage.removeItem("compareIds");
+    }
+  }, [compareIds]);
 
   useEffect(() => {
     // Check authentication status on mount
@@ -48,6 +88,9 @@ function App() {
       setUser(null);
       setAnalysisResult(null);
       setJobRole("");
+      setCurrentView("upload");
+      // Clear sessionStorage on logout
+      sessionStorage.clear();
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -60,6 +103,9 @@ function App() {
   };
 
   const handleReset = () => {
+    // Clear analysis data from sessionStorage
+    sessionStorage.removeItem("analysisResult");
+    sessionStorage.removeItem("jobRole");
     setAnalysisResult(null);
     setJobRole("");
     setCurrentView("upload");
@@ -105,7 +151,7 @@ function App() {
   if (!isAuthenticated) {
     return (
       <div className="App">
-        <Login onLoginSuccess={handleLoginSuccess} />
+        <LandingPage onLoginSuccess={handleLoginSuccess} />
       </div>
     );
   }
@@ -144,6 +190,12 @@ function App() {
           >
             📊 Progress
           </button>
+          <button
+            onClick={() => setCurrentView("courses")}
+            className={`nav-btn ${currentView === "courses" ? "active" : ""}`}
+          >
+            🎓 Courses
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>
@@ -163,6 +215,10 @@ function App() {
       )}
 
       {currentView === "progress" && <ProgressDashboard />}
+
+      {currentView === "courses" && (
+        <Courses onBack={() => setCurrentView("upload")} />
+      )}
 
       {currentView === "compare" && (
         <CompareAnalyses

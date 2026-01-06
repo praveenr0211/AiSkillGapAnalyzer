@@ -81,7 +81,7 @@ exports.analyzeSkills = async (req, res) => {
  * Get required skills for a job role from database
  */
 async function getJobSkills(jobRole) {
-  const query = `SELECT required_skills FROM job_skills WHERE LOWER(job_role) = LOWER($1)`;
+  const query = `SELECT required_skills FROM job_skills WHERE LOWER(job_role) = LOWER(?)`;
 
   try {
     const result = await db.query(query, [jobRole]);
@@ -112,8 +112,7 @@ async function saveAnalysisToDatabase(user, resumeText, jobRole, analysis) {
   const query = `
     INSERT INTO resume_analyses 
     (user_id, user_email, user_name, job_role, resume_text, match_percentage, matched_skills, missing_skills, learning_roadmap)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING id
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const params = [
@@ -129,8 +128,8 @@ async function saveAnalysisToDatabase(user, resumeText, jobRole, analysis) {
   ];
 
   try {
-    const result = await db.query(query, params);
-    const insertedId = result.rows[0].id;
+    const result = await db.run(query, params);
+    const insertedId = result.lastID;
     console.log(`✅ Analysis saved to history (ID: ${insertedId})`);
     return insertedId;
   } catch (err) {

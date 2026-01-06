@@ -1,7 +1,7 @@
 require("dotenv").config({
   path: require("path").join(__dirname, "..", ".env"),
 });
-const pool = require("./config/database");
+const db = require("./config/database");
 
 /**
  * Initialize resume_analyses table for history tracking
@@ -10,9 +10,9 @@ async function initHistoryTable() {
   console.log("🔧 Creating resume_analyses table...");
 
   try {
-    await pool.query(`
+    await db.run(`
       CREATE TABLE IF NOT EXISTS resume_analyses (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
         user_email TEXT NOT NULL,
         user_name TEXT,
@@ -22,7 +22,7 @@ async function initHistoryTable() {
         matched_skills TEXT NOT NULL,
         missing_skills TEXT NOT NULL,
         learning_roadmap TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
 

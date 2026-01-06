@@ -1,25 +1,370 @@
+/* Upload Container with Split Layout */
 .upload-container {
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1429 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Background */
+.upload-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: float 20s ease-in-out infinite;
+}
+
+.upload-orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #667eea 0%, transparent 70%);
+  top: -10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.upload-orb-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #764ba2 0%, transparent 70%);
+  top: 50%;
+  right: -10%;
+  animation-delay: 5s;
+}
+
+.upload-orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #f093fb 0%, transparent 70%);
+  bottom: -10%;
+  left: 30%;
+  animation-delay: 10s;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(50px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.9);
+  }
+}
+
+/* Stars Background */
+.stars-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      2px 2px at 20px 30px,
+      #eee,
+      rgba(0, 0, 0, 0)
+    ),
+    radial-gradient(2px 2px at 60px 70px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 50px 50px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 130px 80px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 90px 10px, #fff, rgba(0, 0, 0, 0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.5;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Left Section - Learning Orbit Scene */
+.upload-left-section {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: white;
+}
+
+/* Orbit Scene Container */
+.orbit-scene {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  margin-bottom: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
 }
 
-.upload-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
+/* Central Student Avatar */
+.student-avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.2),
+    rgba(118, 75, 162, 0.2)
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.5),
+    inset 0 0 20px rgba(102, 126, 234, 0.2);
+  animation: studentPulse 3s ease-in-out infinite;
+}
+
+@keyframes studentPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 30px rgba(102, 126, 234, 0.5),
+      inset 0 0 20px rgba(102, 126, 234, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.7),
+      inset 0 0 25px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.student-emoji {
+  font-size: 4rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Orbit Rings */
+.orbit-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ring-1 {
+  width: 200px;
+  height: 200px;
+}
+
+.ring-2 {
+  width: 300px;
+  height: 300px;
+}
+
+.ring-3 {
+  width: 400px;
+  height: 400px;
+}
+
+.orbit-line {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  padding: 40px;
-  animation: fadeIn 0.5s ease-in;
+  height: 100%;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.2);
 }
 
-@keyframes fadeIn {
+/* Animated Dots on Orbits */
+.orbit-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #f093fb;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #f093fb;
+  top: 50%;
+  left: 50%;
+  margin-left: -2px;
+  margin-top: -2px;
+}
+
+.ring-1 .dot-1 {
+  animation: orbitDot1 8s linear infinite;
+}
+
+.ring-1 .dot-2 {
+  animation: orbitDot1 8s linear infinite;
+  animation-delay: 4s;
+}
+
+.ring-2 .dot-1 {
+  animation: orbitDot2 10s linear infinite;
+}
+
+.ring-2 .dot-2 {
+  animation: orbitDot2 10s linear infinite;
+  animation-delay: 5s;
+}
+
+.ring-3 .dot-1 {
+  animation: orbitDot3 12s linear infinite;
+}
+
+.ring-3 .dot-2 {
+  animation: orbitDot3 12s linear infinite;
+  animation-delay: 6s;
+}
+
+@keyframes orbitDot1 {
+  from {
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
+  }
+}
+
+@keyframes orbitDot2 {
+  from {
+    transform: rotate(0deg) translateX(150px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(150px) rotate(-360deg);
+  }
+}
+
+@keyframes orbitDot3 {
+  from {
+    transform: rotate(0deg) translateX(200px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(200px) rotate(-360deg);
+  }
+}
+
+/* Tech Stack Cards */
+.tech-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin-left: -25px;
+  margin-top: -25px;
+  background: rgba(26, 31, 58, 0.9);
+  border: 2px solid rgba(102, 126, 234, 0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(102, 126, 234, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+
+.tech-card:hover {
+  transform: scale(1.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(102, 126, 234, 0.6);
+  border-color: rgba(167, 139, 250, 0.8);
+}
+
+.tech-card svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Orbit Animations for Tech Cards */
+.orbit-1 {
+  animation: orbit1 20s linear infinite;
+}
+
+.orbit-2 {
+  animation: orbit1 20s linear infinite;
+  animation-delay: -10s;
+}
+
+.orbit-3 {
+  animation: orbit2 25s linear infinite;
+}
+
+.orbit-4 {
+  animation: orbit2 25s linear infinite;
+  animation-delay: -12.5s;
+}
+
+.orbit-5 {
+  animation: orbit3 30s linear infinite;
+}
+
+.orbit-6 {
+  animation: orbit3 30s linear infinite;
+  animation-delay: -15s;
+}
+
+@keyframes orbit1 {
+  from {
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
+  }
+}
+
+@keyframes orbit2 {
+  from {
+    transform: rotate(0deg) translateX(150px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(150px) rotate(-360deg);
+  }
+}
+
+@keyframes orbit3 {
+  from {
+    transform: rotate(0deg) translateX(200px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(200px) rotate(-360deg);
+  }
+}
+
+/* Upload Tagline */
+.upload-tagline {
+  text-align: center;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -27,166 +372,344 @@
   }
 }
 
+.upload-tagline h2 {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.gradient-text-upload {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  background-size: 200% auto;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+/* Right Section - Upload Card */
+.upload-card {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  background: rgba(26, 31, 58, 0.8);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideInRight 0.8s ease-out;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 .upload-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2.5rem;
 }
 
 .upload-header h1 {
-  color: #667eea;
-  font-size: 2rem;
-  margin-bottom: 10px;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
 }
 
 .upload-header p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 1rem;
+  margin: 0;
 }
 
 .upload-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .form-group label {
   font-weight: 600;
-  color: #333;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.95rem;
+  letter-spacing: 0.02em;
 }
 
-.form-group input[type="file"] {
-  padding: 12px;
-  border: 2px dashed #667eea;
-  border-radius: 10px;
+/* File Input Styling */
+.file-input-wrapper {
+  position: relative;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  border: 2px dashed rgba(102, 126, 234, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  transition: all 0.3s;
-  background: #f8f9ff;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.form-group input[type="file"]:hover {
-  border-color: #764ba2;
-  background: #f0f1ff;
+.file-upload-label:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
 }
 
-.file-selected {
-  margin-top: 10px;
-  padding: 10px;
-  background: #e8f5e9;
-  border-radius: 8px;
-  color: #2e7d32;
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  color: #667eea;
+}
+
+.file-upload-label span {
   font-size: 0.9rem;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploaded-filename {
+  background: linear-gradient(135deg, #17ae51 0%, #1fbe4c 50%, #36cf73 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  animation: highlightPulse 2s ease-in-out;
+  border: 2px solid #17ae51;
+  padding:10px;
+  border-radius:10px;
+}
+
+@keyframes highlightPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.form-group input[type="file"]:disabled + .file-upload-label {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .form-group select {
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s;
-  background: white;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.form-group select option {
+  background: #1a1f3a;
+  color: white;
 }
 
 .form-group select:focus {
   outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 .form-group textarea {
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
   min-height: 150px;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .form-group textarea:focus {
   outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 .toggle-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .toggle-btn {
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  background: white;
-  color: #666;
+  padding: 0.875rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .toggle-btn:hover:not(:disabled):not(.active) {
-  border-color: #667eea;
-  background: #f8f9ff;
+  border-color: rgba(102, 126, 234, 0.6);
+  background: rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
 }
 
 .toggle-btn.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-color: #667eea;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
 .toggle-btn.active:hover {
   background: linear-gradient(135deg, #5568d3 0%, #6a3f8a 100%);
-  color: white;
+  transform: translateY(-2px);
 }
 
 .toggle-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .form-group small {
-  color: #999;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
 }
 
 .error-message {
-  padding: 12px;
-  background: #ffebee;
-  color: #c62828;
-  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-radius: 12px;
   font-size: 0.9rem;
-  border-left: 4px solid #c62828;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  backdrop-filter: blur(10px);
+  animation: shake 0.5s ease;
 }
 
-.progress-message {
-  padding: 12px;
-  background: #e3f2fd;
-  color: #1565c0;
-  border-radius: 8px;
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+.success-message {
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.3) !important;
+  color: #22c55e !important;
+  border-radius: 12px;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-left: 4px solid #1565c0;
+  gap: 0.75rem;
+  border: 2px solid #22c55e !important;
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  animation: slideInSuccess 0.3s ease-out;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
 }
 
-.spinner {
+@keyframes slideInSuccess {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.progress-message {
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.spinner,
+.btn-spinner {
   width: 20px;
   height: 20px;
-  border: 3px solid #e3f2fd;
-  border-top: 3px solid #1565c0;
+  border: 3px solid rgba(147, 197, 253, 0.3);
+  border-top: 3px solid #93c5fd;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
 }
 
 @keyframes spin {
@@ -198,43 +721,150 @@
   }
 }
 
-.submit-btn {
-  padding: 15px;
+/* Submit Button */
+.submit-btn-upload {
+  padding: 1rem 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
-.submit-btn:hover:not(:disabled) {
+.submit-btn-upload::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.submit-btn-upload:hover::before {
+  left: 100%;
+}
+
+.submit-btn-upload:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
 }
 
-.submit-btn:disabled {
-  background: #ccc;
+.submit-btn-upload:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn-upload:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.upload-footer {
-  margin-top: 30px;
-  text-align: center;
-  color: #999;
-  font-size: 0.85rem;
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .upload-container {
+    grid-template-columns: 1fr;
+    padding: 2rem;
+  }
+
+  .upload-left-section {
+    display: none;
+  }
+
+  .upload-card {
+    border-left: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+  }
+
+  .orbit-scene {
+    width: 350px;
+    height: 350px;
+  }
+
+  .student-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .ring-1 {
+    width: 160px;
+    height: 160px;
+  }
+
+  .ring-2 {
+    width: 240px;
+    height: 240px;
+  }
+
+  .ring-3 {
+    width: 320px;
+    height: 320px;
+  }
+
+  .tech-card {
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+    margin-top: -20px;
+    padding: 8px;
+  }
+
+  .upload-tagline h2 {
+    font-size: 2.5rem;
+  }
 }
 
 @media (max-width: 768px) {
+  .upload-container {
+    padding: 1rem;
+  }
+
   .upload-card {
-    padding: 30px 20px;
+    padding: 2rem 1.5rem;
   }
 
   .upload-header h1 {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
+
+  .upload-header p {
+    font-size: 0.9rem;
+  }
+
+  .toggle-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .file-upload-label {
+    padding: 1.5rem 1rem;
+  }
+
+  .upload-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
 }

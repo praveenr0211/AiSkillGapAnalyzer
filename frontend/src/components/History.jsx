@@ -71,12 +71,6 @@ const History = ({ onViewAnalysis, onCompare }) => {
     });
   };
 
-  const getScoreColor = (percentage) => {
-    if (percentage >= 75) return "#4caf50";
-    if (percentage >= 50) return "#ff9800";
-    return "#f44336";
-  };
-
   if (loading) {
     return (
       <div className="history-container">
@@ -90,8 +84,19 @@ const History = ({ onViewAnalysis, onCompare }) => {
 
   return (
     <div className="history-container">
+      {/* Futuristic Background */}
+      <div className="history-background">
+        <div className="gradient-orb hist-orb-1"></div>
+        <div className="gradient-orb hist-orb-2"></div>
+        <div className="gradient-orb hist-orb-3"></div>
+        <div className="stars-container"></div>
+      </div>
+
       <div className="history-header">
-        <h1>📚 Analysis History</h1>
+        <h1>
+          <span className="folder-icon">📁</span> Analysis{" "}
+          <span className="gradient-text-history">History</span>
+        </h1>
         <p>View and compare your past resume analyses</p>
       </div>
 
@@ -121,49 +126,91 @@ const History = ({ onViewAnalysis, onCompare }) => {
       ) : (
         <div className="history-grid">
           {history.map((item) => (
-            <div
-              key={item.id}
-              className={`history-card ${
-                selectedForCompare.includes(item.id) ? "selected" : ""
-              }`}
-            >
-              <div className="card-header">
-                <h3>{item.job_role}</h3>
-                <div
-                  className="score-badge"
-                  style={{
-                    backgroundColor: getScoreColor(item.match_percentage),
-                  }}
+            <div key={item.id} className="card-wrapper">
+              <svg
+                className="orbital-svg"
+                viewBox="0 0 400 300"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient
+                    id={`orbital-gradient-${item.id}`}
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style={{ stopColor: "#667eea", stopOpacity: 0.8 }}
+                    />
+                    <stop
+                      offset="50%"
+                      style={{ stopColor: "#764ba2", stopOpacity: 0.6 }}
+                    />
+                    <stop
+                      offset="100%"
+                      style={{ stopColor: "#f093fb", stopOpacity: 0.9 }}
+                    />
+                  </linearGradient>
+                </defs>
+                <ellipse
+                  cx="200"
+                  cy="150"
+                  rx="180"
+                  ry="130"
+                  fill="none"
+                  stroke={`url(#orbital-gradient-${item.id})`}
+                  strokeWidth="2"
+                  className="orbital-path"
+                />
+                <circle
+                  className="orbital-dot orbital-dot-1"
+                  r="4"
+                  fill="#667eea"
                 >
-                  {item.match_percentage}%
+                  <animateMotion dur="8s" repeatCount="indefinite">
+                    <mpath href={`#orbital-path-${item.id}`} />
+                  </animateMotion>
+                </circle>
+              </svg>
+
+              <div
+                className={`history-card ${
+                  selectedForCompare.includes(item.id) ? "selected" : ""
+                }`}
+              >
+                <div className="card-header">
+                  <h3>{item.job_role}</h3>
+                  <div className="score-badge">{item.match_percentage}%</div>
                 </div>
-              </div>
 
-              <div className="card-date">📅 {formatDate(item.created_at)}</div>
+                <div className="card-date">
+                  📅 {formatDate(item.created_at)}
+                </div>
 
-              <div className="card-actions">
-                <button
-                  onClick={() => onViewAnalysis(item.id)}
-                  className="action-btn view-btn"
-                >
-                  👁️ View
-                </button>
-                <button
-                  onClick={() => toggleCompareSelection(item.id)}
-                  className={`action-btn compare-btn ${
-                    selectedForCompare.includes(item.id) ? "active" : ""
-                  }`}
-                >
-                  {selectedForCompare.includes(item.id)
-                    ? "✓ Selected"
-                    : "⚖️ Compare"}
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="action-btn delete-btn"
-                >
-                  🗑️ Delete
-                </button>
+                <div className="card-actions">
+                  <button
+                    onClick={() => onViewAnalysis(item.id)}
+                    className="action-btn view-btn"
+                  >
+                    👁️ View
+                  </button>
+                  <button
+                    onClick={() => toggleCompareSelection(item.id)}
+                    className={`action-btn compare-btn ${
+                      selectedForCompare.includes(item.id) ? "active" : ""
+                    }`}
+                  >
+                    📊 Compare
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="action-btn delete-btn"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
