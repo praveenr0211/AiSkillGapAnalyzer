@@ -10,21 +10,41 @@ async function initHistoryTable() {
   console.log("🔧 Creating resume_analyses table...");
 
   try {
-    await db.run(`
-      CREATE TABLE IF NOT EXISTS resume_analyses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        user_email TEXT NOT NULL,
-        user_name TEXT,
-        job_role TEXT NOT NULL,
-        resume_text TEXT NOT NULL,
-        match_percentage INTEGER NOT NULL,
-        matched_skills TEXT NOT NULL,
-        missing_skills TEXT NOT NULL,
-        learning_roadmap TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    const usePostgres = process.env.DATABASE_URL ? true : false;
+
+    if (usePostgres) {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS resume_analyses (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL,
+          user_name TEXT,
+          job_role TEXT NOT NULL,
+          resume_text TEXT NOT NULL,
+          match_percentage INTEGER NOT NULL,
+          matched_skills TEXT NOT NULL,
+          missing_skills TEXT NOT NULL,
+          learning_roadmap TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    } else {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS resume_analyses (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL,
+          user_name TEXT,
+          job_role TEXT NOT NULL,
+          resume_text TEXT NOT NULL,
+          match_percentage INTEGER NOT NULL,
+          matched_skills TEXT NOT NULL,
+          missing_skills TEXT NOT NULL,
+          learning_roadmap TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    }
 
     console.log("✅ resume_analyses table created successfully");
     process.exit(0);

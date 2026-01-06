@@ -7,35 +7,67 @@ console.log("🔧 Creating skill_progress table...");
 
 async function initProgressTables() {
   try {
+    const usePostgres = process.env.DATABASE_URL ? true : false;
+
     // Create skill_progress table
-    await db.run(`
-      CREATE TABLE IF NOT EXISTS skill_progress (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        user_email TEXT NOT NULL,
-        skill_name TEXT NOT NULL,
-        status TEXT DEFAULT 'in-progress',
-        started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        completed_at DATETIME,
-        notes TEXT,
-        UNIQUE(user_id, skill_name)
-      )
-    `);
+    if (usePostgres) {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS skill_progress (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL,
+          skill_name TEXT NOT NULL,
+          status TEXT DEFAULT 'in-progress',
+          started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          completed_at TIMESTAMP,
+          notes TEXT,
+          UNIQUE(user_id, skill_name)
+        )
+      `);
+    } else {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS skill_progress (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL,
+          skill_name TEXT NOT NULL,
+          status TEXT DEFAULT 'in-progress',
+          started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          completed_at DATETIME,
+          notes TEXT,
+          UNIQUE(user_id, skill_name)
+        )
+      `);
+    }
 
     console.log("✅ skill_progress table created successfully");
 
     // Create achievements table
-    await db.run(`
-      CREATE TABLE IF NOT EXISTS achievements (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        user_email TEXT NOT NULL,
-        badge_type TEXT NOT NULL,
-        badge_name TEXT NOT NULL,
-        earned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id, badge_type)
-      )
-    `);
+    if (usePostgres) {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS achievements (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL,
+          badge_type TEXT NOT NULL,
+          badge_name TEXT NOT NULL,
+          earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, badge_type)
+        )
+      `);
+    } else {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS achievements (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL,
+          badge_type TEXT NOT NULL,
+          badge_name TEXT NOT NULL,
+          earned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, badge_type)
+        )
+      `);
+    }
 
     console.log("✅ achievements table created successfully");
     process.exit(0);

@@ -10,15 +10,28 @@ async function initDatabase() {
   console.log("🔧 Initializing database...");
 
   try {
-    // Create job_skills table
-    await db.run(`
-      CREATE TABLE IF NOT EXISTS job_skills (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        job_role TEXT NOT NULL UNIQUE,
-        required_skills TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    const usePostgres = process.env.DATABASE_URL ? true : false;
+
+    // Create job_skills table with syntax compatible for both databases
+    if (usePostgres) {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS job_skills (
+          id SERIAL PRIMARY KEY,
+          job_role TEXT NOT NULL UNIQUE,
+          required_skills TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    } else {
+      await db.run(`
+        CREATE TABLE IF NOT EXISTS job_skills (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          job_role TEXT NOT NULL UNIQUE,
+          required_skills TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    }
 
     console.log("✅ Table created successfully");
 
@@ -138,11 +151,22 @@ async function seedData() {
   ];
 
   try {
+    const usePostgres = process.env.DATABASE_URL ? true : false;
+
     for (const role of jobRoles) {
-      await db.run(
-        `INSERT OR IGNORE INTO job_skills (job_role, required_skills) VALUES (?, ?)`,
-        [role.job_role, role.required_skills]
-      );
+      if (usePostgres) {
+        await db.run(
+          `INSERT INTO job_skills (job_role, required_skills) 
+           VALUES (?, ?) 
+           ON CONFLICT (job_role) DO NOTHING`,
+          [role.job_role, role.required_skills]
+        );
+      } else {
+        await db.run(
+          `INSERT OR IGNORE INTO job_skills (job_role, required_skills) VALUES (?, ?)`,
+          [role.job_role, role.required_skills]
+        );
+      }
       console.log(`✅ Inserted: ${role.job_role}`);
     }
 
