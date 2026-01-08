@@ -7,6 +7,7 @@ import History from "./components/History";
 import CompareAnalyses from "./components/CompareAnalyses";
 import ProgressDashboard from "./components/ProgressDashboard";
 import Courses from "./components/Courses";
+import ChatBot from "./components/ChatBot";
 import { getCurrentUser, logout, getAnalysisById } from "./services/api";
 
 function App() {
@@ -233,6 +234,11 @@ function App() {
           jobRole={jobRole}
           onReset={handleReset}
         />
+      )}
+
+      {/* AI Chatbot - Available everywhere when authenticated */}
+      {isAuthenticated && (
+        <ChatBot analysisResult={analysisResult} jobRole={jobRole} />
       )}
     </div>
   );

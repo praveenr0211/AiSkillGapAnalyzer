@@ -163,4 +163,80 @@ export const getProgressStats = async () => {
   return response.data;
 };
 
+/**
+ * Send chat message
+ */
+export const sendChatMessage = async (
+  message,
+  sessionId = null,
+  contextData = null
+) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/chat/message`,
+    { message, sessionId, contextData },
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Get chat sessions
+ */
+export const getChatSessions = async () => {
+  const response = await axios.get(`${API_BASE_URL}/chat/sessions`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+/**
+ * Get chat history for a session
+ */
+export const getChatHistory = async (sessionId) => {
+  const response = await axios.get(
+    `${API_BASE_URL}/chat/history/${sessionId}`,
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Clear chat session
+ */
+export const clearChatSession = async (sessionId) => {
+  const response = await axios.delete(
+    `${API_BASE_URL}/chat/session/${sessionId}`,
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Get quick action suggestions
+ */
+export const getQuickActions = async (contextData = null) => {
+  const params = contextData ? { contextData } : {};
+  const response = await axios.get(`${API_BASE_URL}/chat/quick-actions`, {
+    params,
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+/**
+ * Get chat rate limit status
+ */
+export const getChatRateLimit = async () => {
+  const response = await axios.get(`${API_BASE_URL}/chat/rate-limit`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
 export default api;

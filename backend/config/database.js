@@ -40,6 +40,16 @@ if (usePostgres) {
       pgSql = pgSql.replace(/\?/g, () => `$${paramIndex++}`);
 
       const result = await pool.query(pgSql, params);
+
+      // If query has RETURNING clause, return rows
+      if (sql.toUpperCase().includes("RETURNING")) {
+        return {
+          rowCount: result.rowCount,
+          rows: result.rows,
+          lastID: result.rows[0]?.id,
+        };
+      }
+
       return { rowCount: result.rowCount, lastID: result.rows[0]?.id };
     },
     get: async (sql, params = []) => {
@@ -50,6 +60,15 @@ if (usePostgres) {
 
       const result = await pool.query(pgSql, params);
       return result.rows[0];
+    },
+    all: async (sql, params = []) => {
+      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
+      let pgSql = sql;
+      let paramIndex = 1;
+      pgSql = pgSql.replace(/\?/g, () => `$${paramIndex++}`);
+
+      const result = await pool.query(pgSql, params);
+      return result.rows; // Return array of rows
     },
   };
 
@@ -101,6 +120,17 @@ if (usePostgres) {
             reject(err);
           } else {
             resolve(row);
+          }
+        });
+      });
+    },
+    all: (sql, params = []) => {
+      return new Promise((resolve, reject) => {
+        db.all(sql, params, (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows); // Return array of rows
           }
         });
       });

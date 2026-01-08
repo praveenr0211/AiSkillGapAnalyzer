@@ -1,20 +1,21 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 /**
  * Analyze skills using Gemini AI with retry logic
  */
 exports.analyzeSkills = async (resumeText, jobSkills, jobRole) => {
   const maxRetries = 3;
   const retryDelay = 2000; // 2 seconds
+  let currentApiKey = process.env.GEMINI_API_KEY;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      // Get Gemini model - using gemini-2.0-flash-lite for better rate limits
+      // Initialize Gemini AI with single key
+      const genAI = new GoogleGenerativeAI(currentApiKey);
+
+      // Get Gemini model - using gemini-1.5-flash for free tier compatibility
       const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-1.5-flash",
       });
 
       // Construct prompt
@@ -35,29 +36,23 @@ exports.analyzeSkills = async (resumeText, jobSkills, jobRole) => {
         error.message
       );
 
-      // If rate limited and not last attempt, wait and retry
-      if (error.message.includes("429") && attempt < maxRetries) {
-        console.log(`Rate limited. Waiting ${retryDelay}ms before retry...`);
+      // If rate limited, log and retry after delay
+      if (
+        error.message.includes("429") ||
+        error.message.includes("RESOURCE_EXHAUSTED")
+      ) {
+        console.log(
+          `⚠️  Rate limit hit. Waiting ${retryDelay}ms before retry...`
+        );
         await new Promise((resolve) =>
           setTimeout(resolve, retryDelay * attempt)
         );
         continue;
       }
 
-      // If last attempt failed, use fallback analysis for any error
-      if (attempt === maxRetries) {
-        console.log("All retries failed. Using fallback analysis...");
-        return generateFallbackAnalysis(resumeText, jobSkills, jobRole);
-      }
-
-      // For network errors, wait and retry
-      if (error.message.includes("fetch failed") && attempt < maxRetries) {
-        console.log(`Network error. Waiting ${retryDelay}ms before retry...`);
-        await new Promise((resolve) =>
-          setTimeout(resolve, retryDelay * attempt)
-        );
-        continue;
-      }
+      // For other errors, log and break
+      console.log("Error encountered. Stopping retries.");
+      break;
     }
   }
 
@@ -364,7 +359,7 @@ exports.extractSkillsFromJobDescription = async (jobDescription) => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-1.5-flash",
       });
 
       const prompt = `You are an AI job requirement analyzer. Extract all required skills from this job description.

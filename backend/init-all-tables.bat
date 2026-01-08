@@ -22,6 +22,12 @@ echo 📋 Creating skill_progress and achievements tables...
 node initProgressTable.js
 
 echo.
+
+REM Initialize chat tables
+echo 📋 Creating chat_sessions and chat_messages tables...
+node initChatTable.js
+
+echo.
 echo ✅ Database initialization complete!
 echo 🎉 Your app is ready to use!
 pause
