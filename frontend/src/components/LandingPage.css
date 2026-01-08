@@ -176,9 +176,11 @@
 .social-links {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
-.social-links a {
+.social-links a,
+.social-links .admin-login-link {
   width: 36px;
   height: 36px;
   display: flex;
@@ -188,12 +190,36 @@
   transition: all 0.3s ease;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.social-links a:hover {
+.social-links .admin-login-link {
+  padding: 0 12px;
+  width: auto;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.social-links .admin-login-link span {
+  display: inline-block;
+}
+
+.social-links a:hover,
+.social-links .admin-login-link:hover {
   color: #ffffff;
   background: rgba(102, 126, 234, 0.3);
   transform: translateY(-2px);
+}
+
+.social-links .admin-login-link:hover {
+  background: rgba(102, 126, 234, 0.4);
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .social-links svg {
@@ -691,9 +717,19 @@
     gap: 0.5rem;
   }
 
-  .social-links a {
+  .social-links a,
+  .social-links .admin-login-link {
     width: 32px;
     height: 32px;
+  }
+
+  .social-links .admin-login-link {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .social-links .admin-login-link span {
+    display: none;
   }
 
   .hero-title {

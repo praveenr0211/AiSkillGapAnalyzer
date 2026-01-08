@@ -23,5 +23,23 @@ echo "📋 Creating skill_progress and achievements tables..."
 node initProgressTable.js
 
 echo ""
+
+# Initialize chat tables
+echo "📋 Creating chat_sessions and chat_messages tables..."
+node initChatTable.js
+
+echo ""
+
+# Initialize admin table
+echo "📋 Creating admins table..."
+node initAdminTable.js
+
+echo ""
+
+# Initialize courses table
+echo "📋 Creating courses table..."
+node initCoursesTable.js
+
+echo ""
 echo "✅ Database initialization complete!"
 echo "🎉 Your app is ready to use!"

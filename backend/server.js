@@ -15,6 +15,8 @@ const historyRoutes = require("./routes/history");
 const progressRoutes = require("./routes/progress");
 const chatRoutes = require("./routes/chat");
 const jobsRoutes = require("./routes/jobs");
+const adminRoutes = require("./routes/admin");
+const apiCoursesRoutes = require("./routes/apiCourses");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -58,6 +60,8 @@ app.use("/api/history", historyRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/jobs", jobsRoutes);
+app.use("/admin", adminRoutes);
+app.use("/api/courses", apiCoursesRoutes);
 
 // Serve static files from React build
 if (process.env.NODE_ENV === "production") {

@@ -1,9 +1,31 @@
 import React, { useState } from "react";
 import "./CoursePlayer.css";
 
+// Helper function to convert YouTube URLs to embed format
+const convertToEmbedUrl = (url) => {
+  if (!url) return url;
+
+  // If already an embed URL, return as is
+  if (url.includes("/embed/")) return url;
+
+  // Convert youtube.com/watch?v=VIDEO_ID to youtube.com/embed/VIDEO_ID
+  const watchMatch = url.match(/[?&]v=([^&]+)/);
+  if (watchMatch && watchMatch[1]) {
+    return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  }
+
+  // Convert youtu.be/VIDEO_ID to youtube.com/embed/VIDEO_ID
+  const shortMatch = url.match(/youtu\.be\/([^?]+)/);
+  if (shortMatch && shortMatch[1]) {
+    return `https://www.youtube.com/embed/${shortMatch[1]}`;
+  }
+
+  return url;
+};
+
 const CoursePlayer = ({ course, onBack }) => {
   const [selectedVideo, setSelectedVideo] = useState(
-    course.videos.length > 0 ? course.videos[0] : null
+    course?.videos?.length > 0 ? course.videos[0] : null
   );
   const [activeTab, setActiveTab] = useState("modules");
 
@@ -56,7 +78,7 @@ const CoursePlayer = ({ course, onBack }) => {
             <iframe
               width="100%"
               height="100%"
-              src={selectedVideo.url}
+              src={convertToEmbedUrl(selectedVideo.url)}
               title={selectedVideo.title}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -143,7 +165,7 @@ const CoursePlayer = ({ course, onBack }) => {
         </div>
 
         <div className="modules-list">
-          {course.videos.map((video, index) => (
+          {course?.videos?.map((video, index) => (
             <div
               key={video.id}
               className={`module-item ${
@@ -162,7 +184,7 @@ const CoursePlayer = ({ course, onBack }) => {
           ))}
         </div>
 
-        {course.videos.length === 0 && (
+        {(!course?.videos || course.videos.length === 0) && (
           <div className="no-modules">
             <p>No video modules available yet</p>
           </div>

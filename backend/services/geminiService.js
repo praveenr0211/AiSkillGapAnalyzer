@@ -184,7 +184,7 @@ function generateFallbackAnalysis(resumeText, jobSkills, jobRole) {
     {
       title: "YouTube tutorials and documentation",
       platform: "YouTube",
-      url: "https://www.youtube.com/",
+      url: "https://www.youtube.com/results?search_query=programming+tutorials",
       cost: "Free",
       rating: "4.7/5",
     },

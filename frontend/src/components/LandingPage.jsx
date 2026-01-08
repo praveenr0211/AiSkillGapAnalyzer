@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./LandingPage.css";
 
-const LandingPage = ({ onLoginSuccess }) => {
+const LandingPage = ({ onLoginSuccess, onAdminLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,6 +51,22 @@ const LandingPage = ({ onLoginSuccess }) => {
           <span className="logo-text">SkillGap</span>
         </div>
         <div className="social-links">
+          <button
+            onClick={onAdminLogin}
+            className="admin-login-link"
+            aria-label="Admin Login"
+            title="Login as Administrator"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            <span>Admin</span>
+          </button>
           <a
             href="https://github.com"
             target="_blank"

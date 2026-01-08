@@ -9,6 +9,8 @@ import ProgressDashboard from "./components/ProgressDashboard";
 import Courses from "./components/Courses";
 import Jobs from "./components/Jobs";
 import ChatBot from "./components/ChatBot";
+import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./components/AdminDashboard";
 import { getCurrentUser, logout, getAnalysisById } from "./services/api";
 
 function App() {
@@ -22,6 +24,12 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [adminUser, setAdminUser] = useState(() => {
+    const saved = sessionStorage.getItem("adminUser");
+    return saved ? JSON.parse(saved) : null;
+  });
   const [currentView, setCurrentView] = useState(() => {
     return sessionStorage.getItem("currentView") || "upload";
   });
@@ -60,9 +68,17 @@ function App() {
   }, [compareIds]);
 
   useEffect(() => {
-    // Check authentication status on mount
-    checkAuth();
-  }, []);
+    // Check authentication status on mount only if not showing admin login
+    // Also restore admin authentication if adminUser exists in sessionStorage
+    if (adminUser && !showAdminLogin) {
+      setIsAdminAuthenticated(true);
+      setLoading(false);
+    } else if (!showAdminLogin) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [showAdminLogin, adminUser]);
 
   const checkAuth = async () => {
     try {
@@ -96,6 +112,30 @@ function App() {
     } catch (error) {
       console.error("Logout error:", error);
     }
+  };
+
+  const handleAdminLogin = () => {
+    setShowAdminLogin(true);
+  };
+
+  const handleAdminLoginSuccess = (adminData) => {
+    console.log("Admin logged in:", adminData);
+    // Store admin info in sessionStorage
+    sessionStorage.setItem("adminUser", JSON.stringify(adminData));
+    setAdminUser(adminData);
+    setIsAdminAuthenticated(true);
+    setShowAdminLogin(false);
+  };
+
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem("adminUser");
+    setAdminUser(null);
+    setIsAdminAuthenticated(false);
+    setShowAdminLogin(false);
+  };
+
+  const handleBackFromAdminLogin = () => {
+    setShowAdminLogin(false);
   };
 
   const handleAnalysisComplete = (analysis, role) => {
@@ -151,9 +191,31 @@ function App() {
   }
 
   if (!isAuthenticated) {
+    if (showAdminLogin) {
+      return (
+        <div className="App">
+          <AdminLogin
+            onLoginSuccess={handleAdminLoginSuccess}
+            onBack={handleBackFromAdminLogin}
+          />
+        </div>
+      );
+    }
+
+    if (isAdminAuthenticated && adminUser) {
+      return (
+        <div className="App">
+          <AdminDashboard admin={adminUser} onLogout={handleAdminLogout} />
+        </div>
+      );
+    }
+
     return (
       <div className="App">
-        <LandingPage onLoginSuccess={handleLoginSuccess} />
+        <LandingPage
+          onLoginSuccess={handleLoginSuccess}
+          onAdminLogin={handleAdminLogin}
+        />
       </div>
     );
   }
