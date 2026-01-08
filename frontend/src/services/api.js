@@ -239,4 +239,17 @@ export const getChatRateLimit = async () => {
   return response.data;
 };
 
+/**
+ * Search for jobs based on role and skills
+ */
+export const searchJobs = async (jobRole, location, page, userSkills) => {
+  const response = await api.post("/jobs/search", {
+    jobRole,
+    location,
+    page,
+    userSkills,
+  });
+  return response.data;
+};
+
 export default api;

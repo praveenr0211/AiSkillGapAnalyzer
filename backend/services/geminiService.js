@@ -13,9 +13,9 @@ exports.analyzeSkills = async (resumeText, jobSkills, jobRole) => {
       // Initialize Gemini AI with single key
       const genAI = new GoogleGenerativeAI(currentApiKey);
 
-      // Get Gemini model - using gemini-1.5-flash for free tier compatibility
+      // Get Gemini model - using gemini-2.0-flash-exp (Gemini Flash 2.0 Lite)
       const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash-exp",
       });
 
       // Construct prompt
@@ -355,11 +355,15 @@ function parseGeminiResponse(text) {
 exports.extractSkillsFromJobDescription = async (jobDescription) => {
   const maxRetries = 3;
   const retryDelay = 2000;
+  const currentApiKey = process.env.GEMINI_API_KEY;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(currentApiKey);
+
       const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash-exp",
       });
 
       const prompt = `You are an AI job requirement analyzer. Extract all required skills from this job description.

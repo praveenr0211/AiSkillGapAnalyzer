@@ -67,34 +67,50 @@ function checkRateLimit(userId) {
  * Build system prompt based on context
  */
 function buildSystemPrompt(contextData) {
-  let prompt = `You are an AI career advisor assistant for a Skill Gap Analyzer platform. Your role is to:
-- Help users understand their skill gaps and how to improve
-- Provide career guidance and learning path recommendations
-- Answer questions about skills, courses, and career development
-- Be encouraging, supportive, and provide actionable advice
+  let prompt = `You are a concise AI career advisor for a Skill Gap Analyzer platform.
 
 Guidelines:
-- Keep responses concise (2-4 paragraphs max)
-- Be friendly and conversational
-- Focus on practical, actionable advice
-- If asked about specific skills, provide learning resources
-- If you don't know something, be honest`;
+- Keep responses SHORT (1-3 sentences for greetings, 2-4 sentences for questions)
+- Be direct and to the point
+- For simple greetings (hi, hello), reply briefly
+- Only elaborate when asked specific questions
+- Use bullet points for lists
+- Focus on actionable advice
+- ALWAYS reference the user's actual data when available`;
 
   if (contextData) {
     try {
       const context = JSON.parse(contextData);
 
+      // Add page context
+      if (context.currentPage) {
+        prompt += `\n\nCurrent page: ${context.currentPage}`;
+      }
+
       if (context.analysisResult) {
         const { matchedSkills, missingSkills, matchPercentage, jobRole } =
           context.analysisResult;
 
-        prompt += `\n\nContext about this user:
-- Job Role Target: ${jobRole || "Not specified"}
-- Match Percentage: ${matchPercentage || "N/A"}%
-- Matched Skills: ${matchedSkills?.map((s) => s.skill).join(", ") || "None"}
-- Missing Skills: ${missingSkills?.map((s) => s.skill).join(", ") || "None"}
+        const hasValidData =
+          matchPercentage !== undefined && matchPercentage !== null;
 
-Use this context to provide personalized advice when relevant.`;
+        if (hasValidData) {
+          prompt += `\n\nYOU HAVE ACCESS TO THE USER'S ANALYSIS RESULTS:
+- Target Role: ${jobRole || "Not specified"}
+- Match Score: ${matchPercentage}%
+- Skills They Have: ${
+            matchedSkills?.map((s) => s.skill || s).join(", ") || "None"
+          }
+- Skills They Need: ${
+            missingSkills?.map((s) => s.skill || s).join(", ") || "None"
+          }
+
+IMPORTANT: When the user asks about their results, analysis, or uploaded resume, ALWAYS confirm you can see it and reference these specific numbers and skills. DO NOT say you cannot see their data.`;
+        } else {
+          prompt += `\n\nNo analysis data available yet. User needs to upload resume and specify target role.`;
+        }
+      } else {
+        prompt += `\n\nNo analysis data available yet. User needs to upload resume and specify target role.`;
       }
     } catch (e) {
       // Invalid context data, ignore
@@ -194,8 +210,8 @@ exports.generateChatResponse = async (
       const completion = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: messages,
-        temperature: 0.7,
-        max_tokens: 1000,
+        temperature: 0.6,
+        max_tokens: 300,
       });
 
       const aiResponse = completion.choices[0].message.content;

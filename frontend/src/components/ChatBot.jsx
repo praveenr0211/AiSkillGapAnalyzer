@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ChatBot.css";
 import { sendChatMessage, getQuickActions } from "../services/api";
 
-function ChatBot({ analysisResult, jobRole }) {
+function ChatBot({ analysisResult, jobRole, currentPage }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -25,12 +25,11 @@ function ChatBot({ analysisResult, jobRole }) {
   }, [messages]);
 
   // Load quick actions when chat opens
-  // Load quick actions when chat opens
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (isOpen && quickActions.length === 0) {
       loadQuickActions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Focus input when chat opens
@@ -42,9 +41,11 @@ function ChatBot({ analysisResult, jobRole }) {
 
   const loadQuickActions = async () => {
     try {
-      const contextData = analysisResult
-        ? JSON.stringify({ analysisResult, jobRole })
-        : null;
+      const contextData = JSON.stringify({
+        analysisResult,
+        jobRole,
+        currentPage: currentPage || "Home",
+      });
       const response = await getQuickActions(contextData);
       if (response.success) {
         setQuickActions(response.actions);
@@ -70,9 +71,11 @@ function ChatBot({ analysisResult, jobRole }) {
     setError(null);
 
     try {
-      const contextData = analysisResult
-        ? JSON.stringify({ analysisResult, jobRole })
-        : null;
+      const contextData = JSON.stringify({
+        analysisResult,
+        jobRole,
+        currentPage: currentPage || "Home",
+      });
 
       const response = await sendChatMessage(
         textToSend,
@@ -99,6 +102,7 @@ function ChatBot({ analysisResult, jobRole }) {
     } catch (error) {
       console.error("Error sending message:", error);
       setError(error.message || "Failed to send message. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -173,7 +177,7 @@ function ChatBot({ analysisResult, jobRole }) {
                 onClick={toggleMinimize}
                 title={isMinimized ? "Maximize" : "Minimize"}
               >
-                {isMinimized ? "▢" : "▁"}
+                {isMinimized ? "▢" : "-"}
               </button>
               <button
                 className="chat-header-btn"

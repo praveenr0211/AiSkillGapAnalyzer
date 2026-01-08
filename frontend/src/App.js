@@ -7,6 +7,7 @@ import History from "./components/History";
 import CompareAnalyses from "./components/CompareAnalyses";
 import ProgressDashboard from "./components/ProgressDashboard";
 import Courses from "./components/Courses";
+import Jobs from "./components/Jobs";
 import ChatBot from "./components/ChatBot";
 import { getCurrentUser, logout, getAnalysisById } from "./services/api";
 
@@ -197,6 +198,12 @@ function App() {
           >
             🎓 Courses
           </button>
+          <button
+            onClick={() => setCurrentView("jobs")}
+            className={`nav-btn ${currentView === "jobs" ? "active" : ""}`}
+          >
+            💼 Jobs
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>
@@ -221,6 +228,10 @@ function App() {
         <Courses onBack={() => setCurrentView("upload")} />
       )}
 
+      {currentView === "jobs" && (
+        <Jobs analysisResult={analysisResult} jobRole={jobRole} />
+      )}
+
       {currentView === "compare" && (
         <CompareAnalyses
           analysisIds={compareIds}
@@ -238,7 +249,11 @@ function App() {
 
       {/* AI Chatbot - Available everywhere when authenticated */}
       {isAuthenticated && (
-        <ChatBot analysisResult={analysisResult} jobRole={jobRole} />
+        <ChatBot
+          analysisResult={analysisResult}
+          jobRole={jobRole}
+          currentPage={currentView}
+        />
       )}
     </div>
   );
