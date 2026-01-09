@@ -63,6 +63,25 @@ app.use("/api/jobs", jobsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api/courses", apiCoursesRoutes);
 
+// Health check endpoints
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development"
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    message: "API is healthy",
+    timestamp: new Date().toISOString(),
+    database: process.env.DATABASE_URL ? "PostgreSQL" : "SQLite"
+  });
+});
+
 // Serve static files from React build
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/build")));
@@ -72,11 +91,6 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
   });
 }
-
-// Health check
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Server is running" });
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
