@@ -120,13 +120,6 @@ const AdminLogin = ({ onLoginSuccess, onBack }) => {
             )}
           </button>
         </form>
-
-        <div className="admin-login-footer">
-          <p>
-            🔒 Secure admin access • Default credentials: admin@skillgap.com /
-            admin123
-          </p>
-        </div>
       </div>
     </div>
   );
