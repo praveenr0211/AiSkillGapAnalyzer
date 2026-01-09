@@ -6,6 +6,10 @@ const path = require("path");
 // Load environment variables FIRST
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
+// PostgreSQL session store for production
+const pgSession = require("connect-pg-simple")(session);
+const { Pool } = require("pg");
+
 // Then load passport after env vars are loaded
 const passport = require("./config/passport");
 
@@ -35,19 +39,39 @@ app.use(express.urlencoded({ extended: true }));
 app.set("trust proxy", 1);
 
 // Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "skillgap-analyzer-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || "skillgap-analyzer-secret-key",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  },
+};
+
+// Use PostgreSQL session store in production
+if (process.env.DATABASE_URL) {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
     },
-  })
-);
+  });
+
+  sessionConfig.store = new pgSession({
+    pool: pool,
+    tableName: "session",
+    createTableIfMissing: true,
+  });
+
+  console.log("✅ Using PostgreSQL session store");
+} else {
+  console.log("⚠️ Using memory session store (development only)");
+}
+
+app.use(session(sessionConfig));
 
 // Passport initialization
 app.use(passport.initialize());
@@ -65,20 +89,20 @@ app.use("/api/courses", apiCoursesRoutes);
 
 // Health check endpoints
 app.get("/health", (req, res) => {
-  res.json({ 
-    status: "OK", 
+  res.json({
+    status: "OK",
     message: "Server is running",
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development"
+    environment: process.env.NODE_ENV || "development",
   });
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({ 
-    status: "OK", 
+  res.json({
+    status: "OK",
     message: "API is healthy",
     timestamp: new Date().toISOString(),
-    database: process.env.DATABASE_URL ? "PostgreSQL" : "SQLite"
+    database: process.env.DATABASE_URL ? "PostgreSQL" : "SQLite",
   });
 });
 

@@ -1,12 +1,14 @@
 # Deploy to Render
 
 ## Current Database
+
 - **Local Development:** SQLite (skillgap.db)
 - **Production (Render):** PostgreSQL (automatically switches via DATABASE_URL)
 
 ## Deployment Steps
 
 ### 1. Prerequisites
+
 - GitHub repository pushed with latest code ✅
 - Render account (sign up at https://render.com)
 - API keys ready (Google, Gemini, Groq, OpenAI)
@@ -14,6 +16,7 @@
 ### 2. Deploy Using Blueprint (Automated)
 
 #### Option A: Deploy via Dashboard
+
 1. Go to https://render.com/dashboard
 2. Click **"New" → "Blueprint"**
 3. Connect your GitHub repository: `praveenr0211/AiSkillGapAnalyzer`
@@ -23,6 +26,7 @@
    - Frontend Static Site
 
 #### Option B: Deploy via CLI
+
 ```bash
 # Install Render CLI (if not already installed)
 npm install -g render-cli
@@ -39,6 +43,7 @@ render blueprint launch
 After deployment, add these environment variables in Render Dashboard:
 
 **Backend Service → Environment:**
+
 - `GOOGLE_CLIENT_ID` - Your Google OAuth Client ID
 - `GOOGLE_CLIENT_SECRET` - Your Google OAuth Client Secret
 - `GOOGLE_GEMINI_API_KEY` - Your Gemini API key
@@ -49,6 +54,7 @@ After deployment, add these environment variables in Render Dashboard:
 - `CLIENT_URL` - Update to your frontend URL
 
 **Frontend Service → Environment:**
+
 - `REACT_APP_API_URL` - Update to your backend URL
 
 ### 4. Initialize Database Tables
@@ -70,6 +76,7 @@ node initProgressTable.js
 ```
 
 Or use the combined script:
+
 ```bash
 # Windows
 init-all-tables.bat
@@ -82,6 +89,7 @@ chmod +x init-all-tables.sh
 ### 5. Update Google OAuth Redirect URIs
 
 Add these to Google Cloud Console:
+
 - `https://skillgap-analyzer-backend.onrender.com/auth/google/callback`
 - `https://your-custom-domain.com/auth/google/callback` (if using custom domain)
 
@@ -93,6 +101,7 @@ Add these to Google Cloud Console:
 ## Manual Deployment (Alternative)
 
 ### Backend Service
+
 1. Dashboard → New → Web Service
 2. Connect repository
 3. Settings:
@@ -103,6 +112,7 @@ Add these to Google Cloud Console:
    - **Environment:** Node
 
 ### Frontend Service
+
 1. Dashboard → New → Static Site
 2. Connect repository
 3. Settings:
@@ -112,6 +122,7 @@ Add these to Google Cloud Console:
    - **Publish Directory:** `frontend/build`
 
 ### Database
+
 1. Dashboard → New → PostgreSQL
 2. Settings:
    - **Name:** skillgap-db
@@ -122,6 +133,7 @@ Add these to Google Cloud Console:
 ## Post-Deployment
 
 ### Monitor Logs
+
 ```bash
 # Backend logs
 render logs skillgap-analyzer-backend --tail
@@ -131,9 +143,11 @@ render logs skillgap-db --tail
 ```
 
 ### Database Backups
+
 Render automatically backs up PostgreSQL databases daily.
 
 ### Custom Domain (Optional)
+
 1. Go to service settings → Custom Domains
 2. Add your domain
 3. Update DNS records as shown
@@ -141,21 +155,26 @@ Render automatically backs up PostgreSQL databases daily.
 ## Troubleshooting
 
 ### Database Connection Issues
+
 - Check `DATABASE_URL` is set correctly
 - Verify database service is running
 - Check PostgreSQL connection string format
 
 ### Build Failures
+
 - Check Node.js version compatibility
 - Verify all dependencies in package.json
 - Review build logs in Render Dashboard
 
 ### CORS Issues
+
 - Update `CLIENT_URL` in backend env vars
 - Check CORS settings in backend/server.js
 
 ## Cost Estimate
+
 - **Free Tier:**
+
   - PostgreSQL: 90 days free, then $7/month
   - Web Services: Free tier available (spins down after inactivity)
   - Static Sites: Free
@@ -163,6 +182,7 @@ Render automatically backs up PostgreSQL databases daily.
 - **Paid Plans:** Starting at $7/month per service
 
 ## Next Steps
+
 1. ✅ Push code to GitHub
 2. ⏳ Create Render account
 3. ⏳ Deploy via Blueprint
