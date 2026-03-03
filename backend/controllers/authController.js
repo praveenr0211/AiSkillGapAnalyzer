@@ -57,10 +57,18 @@ exports.logout = (req, res) => {
  * Get current user
  */
 exports.getCurrentUser = (req, res) => {
-  if (req.isAuthenticated()) {
+  if (req.isAuthenticated() && req.user) {
+    // Return user without sensitive data
+    const { password, ...userData } = req.user;
     res.json({
       success: true,
-      user: req.user,
+      user: {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        profile_picture: userData.profile_picture,
+        login_count: userData.login_count,
+      },
     });
   } else {
     res.status(401).json({
