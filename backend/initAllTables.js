@@ -10,6 +10,7 @@ async function initAllTables() {
   console.log("🔧 Starting database initialization...\n");
 
   const scripts = [
+    { name: "Users Table", file: "./initUsersTable.js" },
     { name: "Job Skills Table", file: "./initDatabase.js" },
     { name: "Analysis History Table", file: "./initHistoryTable.js" },
     { name: "User Progress Table", file: "./initProgressTable.js" },

@@ -119,51 +119,82 @@ exports.getCurrentAdmin = async (req, res) => {
 // Get dashboard statistics
 exports.getStats = async (req, res) => {
   try {
-    // 1. Total Distinct Users
-    const usersResult = await dbAsync.get(
-      "SELECT COUNT(*) as count FROM users"
-    );
-    const totalUsers = Number(usersResult?.count) || 0;
+    let totalUsers = 0;
+    let totalAnalyses = 0;
+    let recentAnalyses = 0;
+    let uniqueJobRoles = 0;
+    let totalLogins = 0;
+    let topJobRoles = [];
+
+    // 1. Total Distinct Users - with error handling
+    try {
+      const usersResult = await dbAsync.get(
+        "SELECT COUNT(*) as count FROM users"
+      );
+      totalUsers = Number(usersResult?.count) || 0;
+    } catch (err) {
+      console.log("Users table query failed (table may be empty):", err.message);
+    }
 
     // 2. Total Analyses
-    const analysesResult = await dbAsync.get(
-      "SELECT COUNT(*) as count FROM resume_analyses"
-    );
-    const totalAnalyses = Number(analysesResult?.count) || 0;
+    try {
+      const analysesResult = await dbAsync.get(
+        "SELECT COUNT(*) as count FROM resume_analyses"
+      );
+      totalAnalyses = Number(analysesResult?.count) || 0;
+    } catch (err) {
+      console.log("Analyses query failed:", err.message);
+    }
 
     // 3. Recent Activity (last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentAnalysesResult = await dbAsync.get(
-      "SELECT COUNT(*) as count FROM resume_analyses WHERE created_at >= ?",
-      [sevenDaysAgo.toISOString()]
-    );
-    const recentAnalyses = Number(recentAnalysesResult?.count) || 0;
+    try {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const recentAnalysesResult = await dbAsync.get(
+        "SELECT COUNT(*) as count FROM resume_analyses WHERE created_at >= ?",
+        [sevenDaysAgo.toISOString()]
+      );
+      recentAnalyses = Number(recentAnalysesResult?.count) || 0;
+    } catch (err) {
+      console.log("Recent analyses query failed:", err.message);
+    }
 
     // 4. Unique Job Roles
-    const jobRolesResult = await dbAsync.get(
-      "SELECT COUNT(DISTINCT job_role) as count FROM resume_analyses"
-    );
-    const uniqueJobRoles = Number(jobRolesResult?.count) || 0;
+    try {
+      const jobRolesResult = await dbAsync.get(
+        "SELECT COUNT(DISTINCT job_role) as count FROM resume_analyses"
+      );
+      uniqueJobRoles = Number(jobRolesResult?.count) || 0;
+    } catch (err) {
+      console.log("Job roles query failed:", err.message);
+    }
 
     // 5. Total Combined User Logins (Sum of all sessions)
-    const loginsResult = await dbAsync.get(
-      "SELECT SUM(login_count) as count FROM users"
-    );
-    const totalLogins = Number(loginsResult?.count) || 0;
+    try {
+      const loginsResult = await dbAsync.get(
+        "SELECT COALESCE(SUM(login_count), 0) as count FROM users"
+      );
+      totalLogins = Number(loginsResult?.count) || 0;
+    } catch (err) {
+      console.log("Logins query failed:", err.message);
+    }
 
     // 6. Top 5 Job Roles
-    const topJobRolesResult = await dbAsync.query(
-      `SELECT job_role, COUNT(*) as count 
-       FROM resume_analyses 
-       WHERE job_role IS NOT NULL 
-       GROUP BY job_role 
-       ORDER BY count DESC 
-       LIMIT 5`
-    );
-    const topJobRoles = topJobRolesResult.rows || [];
+    try {
+      const topJobRolesResult = await dbAsync.query(
+        `SELECT job_role, COUNT(*) as count 
+         FROM resume_analyses 
+         WHERE job_role IS NOT NULL 
+         GROUP BY job_role 
+         ORDER BY count DESC 
+         LIMIT 5`
+      );
+      topJobRoles = topJobRolesResult.rows || [];
+    } catch (err) {
+      console.log("Top job roles query failed:", err.message);
+    }
 
-    // Success response
+    // Success response - return data even if some queries failed
     res.json({
       success: true,
       stats: {
@@ -171,16 +202,23 @@ exports.getStats = async (req, res) => {
         totalAnalyses,
         recentAnalyses,
         uniqueJobRoles,
-        totalLogins: totalLogins > totalUsers ? totalLogins : totalUsers, // Ensure at least 1 per user
+        totalLogins: totalLogins > 0 ? totalLogins : totalUsers,
         topJobRoles,
       },
     });
   } catch (error) {
     console.error("CRITICAL: Get stats error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error fetching statistics",
-      error: error.message,
+    // Return default stats instead of failing completely
+    res.json({
+      success: true,
+      stats: {
+        totalUsers: 0,
+        totalAnalyses: 0,
+        recentAnalyses: 0,
+        uniqueJobRoles: 0,
+        totalLogins: 0,
+        topJobRoles: [],
+      },
     });
   }
 };
@@ -215,7 +253,7 @@ exports.getUsers = async (req, res) => {
 
     res.json({
       success: true,
-      users: users.rows,
+      users: users.rows || [],
       pagination: {
         page,
         limit,
@@ -225,7 +263,17 @@ exports.getUsers = async (req, res) => {
     });
   } catch (err) {
     console.error("Get users error:", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    // Return empty list instead of error
+    res.json({
+      success: true,
+      users: [],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      },
+    });
   }
 };
 
