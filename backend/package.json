@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init-db": "node initDatabase.js"
+    "init-db": "node initDatabase.js",
+    "init-all": "node initAllTables.js",
+    "test-neon": "node testNeonConnection.js"
   },
   "keywords": [
     "ai",

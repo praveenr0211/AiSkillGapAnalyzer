@@ -7,20 +7,33 @@ const usePostgres = process.env.DATABASE_URL ? true : false;
 let db, dbAsync;
 
 if (usePostgres) {
-  // PostgreSQL Configuration for Production (Render)
+  // PostgreSQL Configuration for Production (Neon/Render/Other)
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      rejectUnauthorized: false,
+      rejectUnauthorized: false, // Required for Neon, Render, and most cloud providers
     },
+    // Neon-specific optimizations
+    max: 20, // Maximum pool size
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   });
 
   pool.on("connect", () => {
-    console.log("✅ Connected to PostgreSQL database");
+    console.log("✅ Connected to PostgreSQL database (Neon)");
   });
 
   pool.on("error", (err) => {
     console.error("❌ PostgreSQL connection error:", err);
+  });
+
+  // Test connection on startup
+  pool.query("SELECT NOW()", (err, res) => {
+    if (err) {
+      console.error("❌ Database connection test failed:", err.message);
+    } else {
+      console.log("✅ Database connection test successful");
+    }
   });
 
   dbAsync = {

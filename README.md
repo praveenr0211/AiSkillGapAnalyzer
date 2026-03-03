@@ -24,9 +24,10 @@ A full-stack web application that helps students identify missing skills for tar
 
 - **Frontend**: React.js, Axios, CSS3
 - **Backend**: Node.js, Express.js
-- **Database**: SQLite
+- **Database**: SQLite (local) / PostgreSQL (production)
 - **AI**: Google Gemini API
 - **File Processing**: pdf-parse, mammoth
+- **Deployment**: Render, Neon PostgreSQL
 
 ## Setup Instructions
 
@@ -67,12 +68,25 @@ A full-stack web application that helps students identify missing skills for tar
      ```
 
 5. **Initialize Database**
+   
+   **Quick Method** (Recommended):
+   ```bash
+   cd backend
+   node initAllTables.js
+   ```
+   
+   **Or individual scripts**:
    ```bash
    cd backend
    node initDatabase.js
    node initHistoryTable.js
    node initProgressTable.js
+   node initChatTable.js
+   node initAdminTable.js
+   node initCoursesTable.js
+   node initVideosTable.js
    ```
+   
    Or use the batch file (Windows):
    ```bash
    cd backend
@@ -188,6 +202,41 @@ Analyze skills and generate roadmap.
    - Matched skills
    - Missing skills
    - Personalized learning roadmap
+
+## 🚀 Deployment
+
+### Deploy with Neon PostgreSQL (Free)
+
+This project is configured to deploy on **Render** with **Neon PostgreSQL** - both offer generous free tiers!
+
+**📖 Full Setup Guide**: See [NEON_SETUP.md](NEON_SETUP.md) for detailed instructions.
+
+**Quick Steps**:
+
+1. **Create Neon Database**:
+   - Sign up at [neon.tech](https://neon.tech)
+   - Create project with PostgreSQL 17, AWS US East 1
+   - Copy your connection string
+
+2. **Deploy on Render**:
+   - Connect your GitHub repository
+   - Use `render.yaml` for automated deployment
+   - Set `DATABASE_URL` to your Neon connection string
+
+3. **Initialize Database**:
+   ```bash
+   # In Render shell
+   cd backend && node initAllTables.js
+   ```
+
+4. **Set Environment Variables** in Render:
+   - `DATABASE_URL` - Your Neon connection string
+   - `GOOGLE_GEMINI_API_KEY` - Your AI API key
+   - `SESSION_SECRET` - Auto-generated
+   - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` - For OAuth
+   - `FRONTEND_URL` - Your frontend URL
+
+**Total Cost**: $0 🎉
 
 ## License
 

@@ -1,3 +1,6 @@
+require("dotenv").config({
+  path: require("path").join(__dirname, "..", ".env"),
+});
 const dbAsync = require("./config/database");
 
 async function initCoursesTable() {
